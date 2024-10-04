@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "198070192196",
+    "project_id": "green-thumb-6a158",
+    "storage_bucket": "green-thumb-6a158.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:198070192196:android:d258847f986c5c8c1c5411",
+        "android_client_info": {
+          "package_name": "com.example.green"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAmpeDtRGEIH4sT_8R65R2x6z5Xq_-NY7I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
