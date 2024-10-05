@@ -1,4 +1,3 @@
-
 import 'package:animated_bottom_navigation_bar/animated_bottom_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:green/constants.dart';
@@ -23,17 +22,17 @@ class _RootPageState extends State<RootPage> {
 
   int _bottomNavIndex = 0;
 
-  //List of the pages
-  List<Widget> _widgetOptions(){
+  // List of the pages
+  List<Widget> _widgetOptions() {
     return [
       const HomePage(),
-      FavoritePage(favoritedPlants: favorites,),
-      CartPage(addedToCartPlants: myCart,),
+      FavoritePage(),
+      CartPage(addedToCartPlants: myCart),
       const ProfilePage(),
     ];
   }
 
-  //List of the pages icons
+  // List of the pages icons
   List<IconData> iconList = [
     Icons.home,
     Icons.favorite,
@@ -41,7 +40,7 @@ class _RootPageState extends State<RootPage> {
     Icons.person,
   ];
 
-  //List of the pages titles
+  // List of the pages titles
   List<String> titleList = [
     'Home',
     'Favorite',
@@ -53,30 +52,39 @@ class _RootPageState extends State<RootPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(titleList[_bottomNavIndex], style: TextStyle(
-              color: Constants.blackColor,
-              fontWeight: FontWeight.w500,
-              fontSize: 24,
-            ),),
-            Icon(Icons.notifications, color: Constants.blackColor, size: 30.0,)
-          ],
+        title: Text(
+          titleList[_bottomNavIndex],
+          style: TextStyle(
+            color: Constants.blackColor,
+            fontWeight: FontWeight.w500,
+            fontSize: 24,
+          ),
         ),
+        centerTitle: true,
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         elevation: 0.0,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.notifications, color: Constants.blackColor, size: 30.0),
+            onPressed: () {
+              // Add notification logic if needed
+            },
+          ),
+        ],
       ),
       body: IndexedStack(
         index: _bottomNavIndex,
         children: _widgetOptions(),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: (){
-          Navigator.push(context, PageTransition(child: const ScanPage(), type: PageTransitionType.bottomToTop));
+        onPressed: () {
+          Navigator.push(
+            context,
+            PageTransition(child: const ScanPage(), type: PageTransitionType.bottomToTop),
+          );
         },
         backgroundColor: Constants.primaryColor,
-        child: Image.asset('assets/images/code-scan-two.png', height: 30.0,),
+        child: Image.asset('assets/images/code-scan-two.png', height: 30.0),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: AnimatedBottomNavigationBar(
@@ -87,7 +95,7 @@ class _RootPageState extends State<RootPage> {
         activeIndex: _bottomNavIndex,
         gapLocation: GapLocation.center,
         notchSmoothness: NotchSmoothness.softEdge,
-        onTap: (index){
+        onTap: (index) {
           setState(() {
             _bottomNavIndex = index;
             final List<Plant> favoritedPlants = Plant.getFavoritedPlants();
@@ -96,7 +104,7 @@ class _RootPageState extends State<RootPage> {
             favorites = favoritedPlants;
             myCart = addedToCartPlants.toSet().toList();
           });
-        }
+        },
       ),
     );
   }

@@ -1,30 +1,51 @@
 import 'package:flutter/material.dart';
 import 'package:green/constants.dart';
 import 'package:green/models/plants.dart';
+import 'package:green/providers/cart_provider.dart';
+import 'package:green/providers/favorite_provider.dart';
+import 'package:provider/provider.dart';
 
 class DetailPage extends StatefulWidget {
+  final bool isFavorited;
+  final bool isSelected;
+  final List<Plant> filteredPlants;
   final int plantId;
-  const DetailPage({Key? key, required this.plantId}) : super(key: key);
+  final String plantName;
+  final double price;
+  final double rating;
+  final String description; // Fixed typo here
+  final String imageURL;
+  final String size;
+  final int humidity;
+  final String category;
+  final String temperature;
+
+  DetailPage({
+    Key? key,
+    required this.filteredPlants,
+    required this.plantId,
+    required this.plantName,
+    required this.price,
+    required this.rating,
+    required this.description, // Fixed typo here
+    required this.imageURL,
+    required this.size,
+    required this.humidity,
+    required this.category,
+    required this.temperature,
+    required this.isFavorited,
+    required this.isSelected,
+  }) : super(key: key);
 
   @override
   State<DetailPage> createState() => _DetailPageState();
 }
 
 class _DetailPageState extends State<DetailPage> {
-  //Toggle Favorite button
-  bool toggleIsFavorated(bool isFavorited) {
-    return !isFavorited;
-  }
-
-  //Toggle add remove from cart
-  bool toggleIsSelected(bool isSelected) {
-    return !isSelected;
-  }
-
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
-    List<Plant> plantList = Plant.plantList;
+
     return Scaffold(
       body: Stack(
         children: [
@@ -52,34 +73,36 @@ class _DetailPageState extends State<DetailPage> {
                     ),
                   ),
                 ),
-                GestureDetector(
-                  onTap: () {
-                    debugPrint('favorite');
-                  },
-                  child: Container(
-                    height: 40,
-                    width: 40,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(25),
-                      color: Constants.primaryColor.withOpacity(.15),
-                    ),
-                    child: IconButton(
-                        onPressed: () {
-                          setState(() {
-                            bool isFavorited = toggleIsFavorated(
-                                plantList[widget.plantId].isFavorated);
-                            plantList[widget.plantId].isFavorated =
-                                isFavorited;
-                          });
-                        },
-                        icon: Icon(
-                          plantList[widget.plantId].isFavorated == true
-                              ? Icons.favorite
-                              : Icons.favorite_border,
-                          color: Constants.primaryColor,
-                        )),
-                  ),
-                ),
+                Consumer<FavoriteProvider>(
+  builder: (context, favoriteProvider, child) {
+    final isFavorited = favoriteProvider.isFavorited(widget.filteredPlants[widget.plantId]);
+
+    return GestureDetector(
+      onTap: () {
+        debugPrint('favorite');
+        setState(() {
+          if (isFavorited) {
+            favoriteProvider.removeFromFavorites(widget.filteredPlants[widget.plantId]);
+          } else {
+            favoriteProvider.addToFavorites(widget.filteredPlants[widget.plantId]);
+          }
+        });
+      },
+      child: Container(
+        height: 40,
+        width: 40,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(25),
+          color: Constants.primaryColor.withOpacity(.15),
+        ),
+        child: Icon(
+          isFavorited ? Icons.favorite : Icons.favorite_border,
+          color: Constants.primaryColor,
+        ),
+      ),
+    );
+  },
+),
               ],
             ),
           ),
@@ -98,7 +121,7 @@ class _DetailPageState extends State<DetailPage> {
                     left: 0,
                     child: SizedBox(
                       height: 350,
-                      child: Image.asset(plantList[widget.plantId].imageURL),
+                      child: Image.asset(widget.imageURL),
                     ),
                   ),
                   Positioned(
@@ -112,17 +135,15 @@ class _DetailPageState extends State<DetailPage> {
                         children: [
                           PlantFeature(
                             title: 'Size',
-                            plantFeature: plantList[widget.plantId].size,
+                            plantFeature: widget.size,
                           ),
                           PlantFeature(
                             title: 'Humidity',
-                            plantFeature:
-                                plantList[widget.plantId].humidity.toString(),
+                            plantFeature: widget.humidity.toString(),
                           ),
                           PlantFeature(
                             title: 'Temperature',
-                            plantFeature:
-                                plantList[widget.plantId].temperature,
+                            plantFeature: widget.temperature,
                           ),
                         ],
                       ),
@@ -148,40 +169,42 @@ class _DetailPageState extends State<DetailPage> {
                 ),
               ),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            plantList[widget.plantId].plantName,
-                            style: TextStyle(
-                              color: Constants.primaryColor,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 30.0,
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              widget.plantName,
+                              style: TextStyle(
+                                color: Constants.primaryColor,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 30.0,
+                              ),
+                              textAlign: TextAlign.center,
                             ),
-                          ),
-                          const SizedBox(
-                            height: 10,
-                          ),
-                          Text(
-                            r'$' + plantList[widget.plantId].price.toString(),
-                            style: TextStyle(
-                              color: Constants.blackColor,
-                              fontSize: 24.0,
-                              fontWeight: FontWeight.bold,
+                            const SizedBox(height: 10),
+                            Text(
+                              r'$' + widget.price.toString(),
+                              style: TextStyle(
+                                color: Constants.blackColor,
+                                fontSize: 24.0,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.center,
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                       Row(
                         children: [
                           Text(
-                            plantList[widget.plantId].rating.toString(),
+                            widget.rating.toString(),
                             style: TextStyle(
                               fontSize: 30.0,
                               color: Constants.primaryColor,
@@ -196,13 +219,11 @@ class _DetailPageState extends State<DetailPage> {
                       ),
                     ],
                   ),
-                  const SizedBox(
-                    height: 5.0,
-                  ),
+                  const SizedBox(height: 17.0),
                   Expanded(
                     child: Text(
-                      plantList[widget.plantId].decription,
-                      textAlign: TextAlign.justify,
+                      widget.description, // Fixed typo here
+                      textAlign: TextAlign.center,
                       style: TextStyle(
                         height: 1.5,
                         fontSize: 18,
@@ -225,32 +246,46 @@ class _DetailPageState extends State<DetailPage> {
               height: 50,
               width: 50,
               decoration: BoxDecoration(
-                  color: plantList[widget.plantId].isSelected == true ? Constants.primaryColor.withOpacity(.5) : Colors.white,
-                  borderRadius: BorderRadius.circular(50),
-                  boxShadow: [
-                    BoxShadow(
-                      offset: const Offset(0, 1),
-                      blurRadius: 5,
-                      color: Constants.primaryColor.withOpacity(.3),
-                    ),
-                  ]),
-              child: IconButton(onPressed: (){
-                setState(() {
-                  bool isSelected = toggleIsSelected(plantList[widget.plantId].isSelected);
-
-                  plantList[widget.plantId].isSelected = isSelected;
-                });
-              }, icon: Icon(
-                Icons.shopping_cart,
-                color: plantList[widget.plantId].isSelected == true ? Colors.white : Constants.primaryColor,
-              )),
+                color: Provider.of<CartProvider>(context).isInCart(widget.filteredPlants[widget.plantId])
+                    ? Constants.primaryColor.withOpacity(.5)
+                    : Colors.white,
+                borderRadius: BorderRadius.circular(50),
+                boxShadow: [
+                  BoxShadow(
+                    offset: const Offset(0, 1),
+                    blurRadius: 5,
+                    color: Constants.primaryColor.withOpacity(.3),
+                  ),
+                ],
+              ),
+              child: IconButton(
+                onPressed: () {
+                  if (Provider.of<CartProvider>(context, listen: false)
+                      .isInCart(widget.filteredPlants[widget.plantId])) {
+                    Provider.of<CartProvider>(context, listen: false)
+                        .removeFromCart(widget.plantId);
+                  } else {
+                    Provider.of<CartProvider>(context, listen: false)
+                        .addToCart(widget.filteredPlants[widget.plantId]);
+                  }
+                  setState(() {}); // Refresh state after adding/removing from cart
+                },
+                icon: Icon(
+                  Icons.shopping_cart,
+                  color: Provider.of<CartProvider>(context).isInCart(widget.filteredPlants[widget.plantId])
+                      ? Colors.white
+                      : Constants.primaryColor,
+                ),
+              ),
             ),
-            const SizedBox(
-              width: 20,
-            ),
+            const SizedBox(width: 20),
             Expanded(
-              child: Container(
-                decoration: BoxDecoration(
+              child: GestureDetector(
+                onTap: () {
+                  // Add your buy now functionality here
+                },
+                child: Container(
+                  decoration: BoxDecoration(
                     color: Constants.primaryColor,
                     borderRadius: BorderRadius.circular(10),
                     boxShadow: [
@@ -258,14 +293,16 @@ class _DetailPageState extends State<DetailPage> {
                         offset: const Offset(0, 1),
                         blurRadius: 5,
                         color: Constants.primaryColor.withOpacity(.3),
-                      )
-                    ]),
-                child: const Center(
-                  child: Text(
-                    'BUY NOW',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20.0,
+                      ),
+                    ],
+                  ),
+                  child: const Center(
+                    child: Text(
+                      'BUY NOW',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20.0,
+                      ),
                     ),
                   ),
                 ),
@@ -281,6 +318,7 @@ class _DetailPageState extends State<DetailPage> {
 class PlantFeature extends StatelessWidget {
   final String plantFeature;
   final String title;
+  
   const PlantFeature({
     Key? key,
     required this.plantFeature,
@@ -295,17 +333,18 @@ class PlantFeature extends StatelessWidget {
         Text(
           title,
           style: TextStyle(
-            color: Constants.blackColor,
+            color: Constants.blackColor.withOpacity(.5),
           ),
         ),
+        const SizedBox(height: 5),
         Text(
           plantFeature,
           style: TextStyle(
-            color: Constants.primaryColor,
-            fontSize: 18.0,
+            fontSize: 16,
+            color: Constants.blackColor,
             fontWeight: FontWeight.bold,
           ),
-        )
+        ),
       ],
     );
   }

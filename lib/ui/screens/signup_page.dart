@@ -1,6 +1,7 @@
-import 'package:flutter/material.dart'; 
-import 'package:firebase_auth/firebase_auth.dart'; // Firebase Auth import
-import 'package:cloud_firestore/cloud_firestore.dart'; // Firestore import
+import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart'; // Firebase Storage import
 import 'package:green/constants.dart';
 import 'package:green/ui/screens/signin_page.dart';
 import 'package:page_transition/page_transition.dart';
@@ -17,51 +18,47 @@ class _SignUpState extends State<SignUp> {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  bool isHovered = false;
-  bool isLoading = false; // For loading state
-
+  bool isHovered = false; // For hover effect
+  bool isLoginHovered = false; // For login text hover effect
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  Future<void> _signUp() async {
-    if (_formKey.currentState!.validate()) {
-      setState(() {
-        isLoading = true;
+  Future<void> signup() async {
+    try {
+      // Create the user with email and password
+      UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
+        email: emailController.text.trim(),
+        password: passwordController.text.trim(),
+      );
+
+      // Update the display name for the user
+      await userCredential.user!.updateDisplayName(nameController.text.trim());
+
+      // Add user details to Firestore
+      await _firestore.collection('users').doc(userCredential.user!.uid).set({
+        'full_name': nameController.text.trim(),
+        'email': emailController.text.trim(),
+        'created_at': FieldValue.serverTimestamp(),
       });
-      try {
-        // Create the user with email and password
-        UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
-          email: emailController.text.trim(),
-          password: passwordController.text.trim(),
-        );
 
-        // Add user details to Firestore
-        await _firestore.collection('users').doc(userCredential.user!.uid).set({
-          'full_name': nameController.text.trim(),
-          'email': emailController.text.trim(),
-          'created_at': FieldValue.serverTimestamp(),
-        });
+      // Show success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Registration successful! Redirecting to Sign In...'),
+        ),
+      );
 
-        // Navigate to the SignIn page after successful signup
-        Navigator.pushReplacement(
-          context,
-          PageTransition(
-            child: const SignIn(),
-            type: PageTransitionType.bottomToTop,
-          ),
-        );
-      } on FirebaseAuthException catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(e.message ?? 'An error occurred.'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      } finally {
-        setState(() {
-          isLoading = false;
-        });
-      }
+      // Wait for 2 seconds to allow the message to be visible
+      await Future.delayed(const Duration(seconds: 2));
+
+      // Navigator.pushReplacement is called inside onPressed, leaving as it is
+    } on FirebaseAuthException catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.message ?? 'An error occurred.'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
@@ -87,7 +84,7 @@ class _SignUpState extends State<SignUp> {
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                const SizedBox(height: 30),
+                const SizedBox(height: 10),
                 TextFormField(
                   controller: emailController,
                   decoration: const InputDecoration(
@@ -98,8 +95,7 @@ class _SignUpState extends State<SignUp> {
                     if (value == null || value.isEmpty) {
                       return 'Email is required';
                     }
-                    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-                        .hasMatch(value)) {
+                    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
                       return 'Enter a valid email';
                     }
                     return null;
@@ -139,6 +135,7 @@ class _SignUpState extends State<SignUp> {
                 ),
                 const SizedBox(height: 20),
                 MouseRegion(
+                  cursor: SystemMouseCursors.click, // Change cursor on hover
                   onEnter: (_) {
                     setState(() {
                       isHovered = true;
@@ -152,61 +149,86 @@ class _SignUpState extends State<SignUp> {
                   child: GestureDetector(
                     onTap: () {
                       if (_formKey.currentState!.validate()) {
-                        _signUp(); // Call signup function
+                        signup(); // Call signup function
                       }
                     },
                     child: Container(
-                      width: size.width,
-                      decoration: BoxDecoration(
-                        color: isHovered
-                            ? Constants.primaryColor.withOpacity(0.8)
-                            : Constants.primaryColor,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 20),
-                      child: Center(
-                        child: isLoading
-                            ? const CircularProgressIndicator(color: Colors.white)
-                            : const Text(
-                                'Sign Up',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 18.0,
-                                ),
+                      width: size.width * 0.98, // Set width to 98%
+                      height: 35, // Set height to 35px
+                      child: ElevatedButton(
+                        onPressed: () {
+                          if (_formKey.currentState!.validate()) {
+                            signup(); // Call signup function
+                            Navigator.push(
+                              context,
+                              PageTransition(
+                                child: const SignIn(),
+                                type: PageTransitionType.bottomToTop,
                               ),
+                            );
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: isHovered
+                              ? Constants.primaryColor.withOpacity(0.8) // Hover color
+                              : Constants.primaryColor,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15), // Rounded shape
+                          ),
+                          elevation: 5, // Adding elevation for depth
+                        ),
+                        child: Text(
+                          'Sign Up',
+                          style: TextStyle(
+                            color: Colors.white, // Change text color to white
+                            fontSize: 18.0,
+                          ),
+                        ),
                       ),
                     ),
                   ),
                 ),
                 const SizedBox(height: 20),
-                GestureDetector(
-                  onTap: () {
-                    Navigator.pushReplacement(
-                      context,
-                      PageTransition(
-                        child: const SignIn(),
-                        type: PageTransitionType.bottomToTop,
-                      ),
-                    );
+                MouseRegion(
+                  cursor: SystemMouseCursors.click, // Change cursor on hover
+                  onEnter: (_) {
+                    setState(() {
+                      isLoginHovered = true;
+                    });
                   },
-                  child: Center(
-                    child: Text.rich(
-                      TextSpan(
-                        children: [
-                          TextSpan(
-                            text: 'Have an Account? ',
-                            style: TextStyle(
-                              color: Constants.blackColor,
+                  onExit: (_) {
+                    setState(() {
+                      isLoginHovered = false;
+                    });
+                  },
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        PageTransition(
+                          child: const SignIn(),
+                          type: PageTransitionType.bottomToTop,
+                        ),
+                      );
+                    },
+                    child: Center(
+                      child: Text.rich(
+                        TextSpan(
+                          children: [
+                            TextSpan(
+                              text: 'Have an Account? ',
+                              style: TextStyle(
+                                color: Constants.blackColor,
+                              ),
                             ),
-                          ),
-                          TextSpan(
-                            text: 'Login',
-                            style: TextStyle(
-                              color: Constants.primaryColor,
+                            TextSpan(
+                              text: 'Login',
+                              style: TextStyle(
+                                color: isLoginHovered ? Colors.blue : Constants.primaryColor,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),

@@ -2,22 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:green/constants.dart';
 import 'package:green/models/plants.dart';
 import 'package:green/ui/screens/widgets/plant_widget.dart';
+import 'package:provider/provider.dart';
+import 'package:green/providers/favorite_provider.dart';
 
-class FavoritePage extends StatefulWidget {
-  final List<Plant> favoritedPlants;
-  const FavoritePage({Key? key, required this.favoritedPlants})
-      : super(key: key);
-
-  @override
-  State<FavoritePage> createState() => _FavoritePageState();
-}
-
-class _FavoritePageState extends State<FavoritePage> {
+class FavoritePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
+
+    // Access the FavoriteProvider to get the list of favorited plants
+    final favoriteProvider = Provider.of<FavoriteProvider>(context);
+    final favoritedPlants = favoriteProvider.favoriteItems;
+
     return Scaffold(
-      body: widget.favoritedPlants.isEmpty
+      body: favoritedPlants.isEmpty
           ? Center(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -27,9 +25,7 @@ class _FavoritePageState extends State<FavoritePage> {
                     height: 100,
                     child: Image.asset('assets/images/favorited.png'),
                   ),
-                  const SizedBox(
-                    height: 10,
-                  ),
+                  const SizedBox(height: 10),
                   Text(
                     'Your favorited Plants',
                     style: TextStyle(
@@ -45,13 +41,28 @@ class _FavoritePageState extends State<FavoritePage> {
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 30),
               height: size.height * .5,
               child: ListView.builder(
-                  itemCount: widget.favoritedPlants.length,
-                  scrollDirection: Axis.vertical,
-                  physics: const BouncingScrollPhysics(),
-                  itemBuilder: (BuildContext context, int index) {
-                    return PlantWidget(
-                        index: index, plantList: widget.favoritedPlants);
-                  }),
+                itemCount: favoritedPlants.length,
+                scrollDirection: Axis.vertical,
+                physics: const BouncingScrollPhysics(),
+                itemBuilder: (BuildContext context, int index) {
+                  return PlantWidget(
+                    index: index,
+                    plantList: favoritedPlants,
+                    plantId: favoritedPlants[index].plantId,
+                    price: favoritedPlants[index].price.toDouble(),
+                    plantName: favoritedPlants[index].plantName,
+                    category: favoritedPlants[index].category,
+                    imageURL: favoritedPlants[index].imageURL,
+                    isFavorated: favoritedPlants[index].isFavorated,
+                    rating: favoritedPlants[index].rating,
+                    decription: favoritedPlants[index].decription,
+                    size: favoritedPlants[index].size,
+                    humidity: favoritedPlants[index].humidity,
+                    isSelected: favoritedPlants[index].isSelected,
+                    temperature: favoritedPlants[index].temperature,
+                  );
+                },
+              ),
             ),
     );
   }
