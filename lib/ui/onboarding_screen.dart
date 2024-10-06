@@ -28,13 +28,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 Navigator.pushReplacement(
                     context, MaterialPageRoute(builder: (_) => const SignIn()));
               }, //to login screen. We will update later
-              child: const Text(
+              child: Text(
                 'Skip',
                 style: TextStyle(
-                  color: Colors.grey,
-                  fontSize: 16.0,
-                  fontWeight: FontWeight.w400,
-                ),
+                  color: Colors.white,
+                  backgroundColor: Constants.primaryColor,
+                )
+
               ),
             ),
           )
