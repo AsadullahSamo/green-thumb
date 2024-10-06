@@ -17,8 +17,8 @@ class PlantWidget extends StatelessWidget {
   final String size;
   final int humidity;
   final String category;
-  bool isFavorated;
-  bool isSelected;
+  final bool isFavorated;
+  final bool isSelected;
   final String temperature;
   final List<Plant> plantList;
 

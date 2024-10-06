@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:green/constants.dart';
-import 'package:green/models/plants.dart';
 import 'package:green/ui/screens/widgets/plant_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:green/providers/favorite_provider.dart';

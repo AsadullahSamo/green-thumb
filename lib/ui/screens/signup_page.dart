@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart'; // Firebase Storage import
 import 'package:green/constants.dart';
 import 'package:green/ui/screens/signin_page.dart';
 import 'package:page_transition/page_transition.dart';

@@ -2,11 +2,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:green/constants.dart';
 import 'package:green/models/plants.dart';
-import 'package:green/providers/favorite_provider.dart';
 import 'package:green/ui/screens/detail_page.dart';
 import 'package:green/ui/screens/widgets/plant_widget.dart';
 import 'package:page_transition/page_transition.dart';
-import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);

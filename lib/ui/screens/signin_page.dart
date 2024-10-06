@@ -4,7 +4,6 @@ import 'package:green/constants.dart';
 import 'package:green/ui/root_page.dart'; // Import your homepage here
 import 'package:green/ui/screens/forgot_password.dart';
 import 'package:green/ui/screens/signup_page.dart';
-import 'package:page_transition/page_transition.dart';
 
 class SignIn extends StatefulWidget {
   const SignIn({Key? key}) : super(key: key);
@@ -23,7 +22,7 @@ class _SignInState extends State<SignIn> {
 
   signin() async {
     try {
-      UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: emailController.text,
         password: passwordController.text,
       );
