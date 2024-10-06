@@ -218,13 +218,15 @@ class _SignUpState extends State<SignUp> {
                             TextSpan(
                               text: 'Have an Account? ',
                               style: TextStyle(
-                                color: Constants.blackColor,
+                                color: isLoginHovered ? Constants.primaryColor : Constants.blackColor,
+                                decoration: isLoginHovered ? TextDecoration.underline : TextDecoration.none, // Underline on hover
                               ),
                             ),
                             TextSpan(
                               text: 'Login',
                               style: TextStyle(
                                 color: isLoginHovered ? Colors.blue : Constants.primaryColor,
+                                decoration: isLoginHovered ? TextDecoration.underline : TextDecoration.none, // Underline on hover
                               ),
                             ),
                           ],

@@ -213,16 +213,25 @@ class _SignInState extends State<SignIn> {
                       child: Text.rich(
                         TextSpan(children: [
                           TextSpan(
-                            text: 'New to Planty? ',
+                            text: 'New to Green Thumb? ',
                             style: TextStyle(
-                              color: Constants.blackColor,
+                              color: isRegisterHovered
+                                  ? Constants.primaryColor
+                                  : Constants.blackColor, // Change color on hover
+                              decoration: isRegisterHovered
+                                  ? TextDecoration.underline
+                                  : TextDecoration.none, // Underline on hover
                             ),
                           ),
                           TextSpan(
                             text: 'Register',
                             style: TextStyle(
-                              color: isRegisterHovered ? Colors.blue : Constants.primaryColor, // Change color on hover
-                              decoration: isRegisterHovered ? TextDecoration.underline : TextDecoration.none, // Underline on hover
+                              color: isRegisterHovered
+                                  ? Colors.blue
+                                  : Constants.primaryColor, // Change color on hover
+                              decoration: isRegisterHovered
+                                  ? TextDecoration.underline
+                                  : TextDecoration.none, // Underline on hover
                             ),
                           ),
                         ]),
