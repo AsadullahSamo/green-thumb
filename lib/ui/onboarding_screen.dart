@@ -12,6 +12,7 @@ class OnboardingScreen extends StatefulWidget {
 class _OnboardingScreenState extends State<OnboardingScreen> {
   final PageController _pageController = PageController(initialPage: 0);
   int currentIndex = 0;
+  bool isHovering = false;
 
   @override
   Widget build(BuildContext context) {
@@ -21,24 +22,50 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         elevation: 0.0,
         backgroundColor: Colors.white,
         actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 20, top: 20),
-            child: InkWell(
-              onTap: () {
-                Navigator.pushReplacement(
-                    context, MaterialPageRoute(builder: (_) => const SignIn()));
-              }, //to login screen. We will update later
-              child: Text(
-                'Skip',
-                style: TextStyle(
-                  color: Colors.white,
-                  backgroundColor: Constants.primaryColor,
-                )
-
-              ),
+  Padding(
+    padding: const EdgeInsets.only(right: 10, top: 10),
+    child: MouseRegion(
+      cursor: SystemMouseCursors.click, // Adding a cursor pointer on hover
+      onEnter: (_) => setState(() {
+        isHovering = true;
+      }),
+      onExit: (_) => setState(() {
+        isHovering = false;
+      }),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        decoration: BoxDecoration(
+          color: isHovering ? Colors.blue[400] : Constants.primaryColor.withOpacity(0.8),
+          borderRadius: BorderRadius.circular(20), // Rounded edges
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.5),
+              spreadRadius: 1,
+              blurRadius: 3,
+              offset: const Offset(0, 3), // Shadow effect
             ),
-          )
-        ],
+          ],
+        ),
+        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 15), // Padding for a better visual
+        child: InkWell(
+          onTap: () {
+            Navigator.pushReplacement(
+                context, MaterialPageRoute(builder: (_) => const SignIn()));
+          },
+          child: Text(
+            'Skip',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      ),
+    ),
+  )
+]
+
       ),
       body: Stack(
         alignment: Alignment.bottomCenter,
@@ -104,6 +131,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     Icons.arrow_forward_ios,
                     size: 24,
                     color: Colors.white,
+                    
                   )),
             ),
           ),
